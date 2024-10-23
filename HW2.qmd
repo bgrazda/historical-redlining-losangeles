@@ -13,12 +13,12 @@ editor_options:
 code-fold: true
 warning: false
 message: false
-echo: false
 ---
 
 ## Part 1: Legacy of redlining in current environmental (in)justice
 
 ```{r}
+#| code-fold: true
 
 library(tidyverse)
 library(janitor) 
@@ -27,30 +27,31 @@ library(sf)
 library(tmap)
 library(kableExtra)
 library(patchwork)
+library(testthat)
 ```
 
-```{r, echo=FALSE, results='hide', include=FALSE}
+```{r}
+#| code-fold: true
+
 # Read in HOLC data, make shape valid
 holc <- sf::st_read(here::here('data', 'mapping-inequality/mapping-inequality-los-angeles.json')) |> 
-  st_make_valid()
+  st_make_valid()             # fixes error that data frame is not valid sf object
 
 # Read in EJ screen data, transform EJ screen to have same crs as holc df
 ejscreen <- sf::st_read(here::here("data", "ejscreen","EJSCREEN_2023_BG_StatePct_with_AS_CNMI_GU_VI.gdb")) |> 
-  st_transform(st_crs(holc)) |> 
-  st_make_valid()             
+  st_transform(st_crs(holc)) |>                # Make the crs the same as the holc data frame
+  st_make_valid()               # fixes error that data frame is not valid sf object          
 
 # filter for LA County
 ejscreen_LA <- ejscreen |> 
-  dplyr::filter(CNTY_NAME == 'Los Angeles County' & 
+  dplyr::filter(CNTY_NAME == 'Los Angeles County' &             # Selecting only LA
                   ID != '060379902000' & 
                   ID !='060379901000' & 
                   ID != '060379903000' & 
-                  ID != '599100') |> 
-  st_make_valid()
+                  ID != '599100') |>     # We want to omit these ID's because they are coastal census tracts in the ocean
+  st_make_valid()            # fixes error that data frame is not valid sf object
 
 # Filter for surrounding counties for base map context
-san_bern <- ejscreen |> filter(CNTY_NAME == 'San Bernardino County') |> 
-  st_make_valid()
 orange_county <- ejscreen |> filter(CNTY_NAME == 'Orange County') |> 
   st_make_valid()
 ventura <- ejscreen |> filter(CNTY_NAME == 'Ventura County') |> 
@@ -63,24 +64,34 @@ riverside <- ejscreen |> filter(CNTY_NAME == 'Riverside County') |>
 # Read in dataframe
 meta <- readxl::read_xlsx(here::here('data', 'ejscreen', 'EJSCREEN_2023_BG_Columns.xlsx'), 
                           col_names = c('Column Number', 'Column Names', 'Description')) |> 
-  slice(c(-1, -2))
+  slice(c(-1, -2))          
+
+
+birds <- sf::st_read(here::here('data', 'gbif-birds-LA', 'gbif-birds-LA.shp')) |> 
+  filter(year == 2022)       # We only want to look at bird observations for 2022, df too big
+
 ```
 
 
 ```{r}
+#| code-fold: true
+
 # Conditional statement to check for coordinate reference systems
 if(st_crs(holc) == st_crs(ejscreen_LA) & st_crs(holc) == st_crs(ejscreen)) {
   print("It's a match! Coordinate reference systems of datsets match. ")
 } else{
-  warning("Coordinate reference systems do not match. Please transform your data.") 
+  stop("Coordinate reference systems do not match. Please transform your data.") 
 }
+
 ```
 
 ```{r}
+#| code-fold: true
+
 tmap_mode('plot')
 
 # Layer shapes using bounding box visualizing LA County and its surrounding counties
-tmap_options(check.and.fix = TRUE) 
+tmap_options(check.and.fix = TRUE)            # 
 
 tm_shape(ejscreen_LA,
          bbox = holc) +
@@ -92,8 +103,6 @@ tm_shape(ejscreen_LA,
                           'C' = 'darkorange',
                           'D' = 'red4'),
                title = "Grades") +
-  tm_shape(san_bern) +
-  tm_polygons(col = 'moccasin') +
   tm_shape(kern) +
   tm_polygons(col = 'moccasin') +
   tm_shape(orange_county) +
@@ -122,12 +131,15 @@ tm_shape(ejscreen_LA,
 ```
 
 ```{r}
+#| code-fold: true
+
 # Create a joined data frame that will be modified to create table and figures
 holc_la_join <- st_join(ejscreen_LA, holc, join = st_intersects)
 ```
  
 ### Table summarizing the percent of current census block groups within each HOLC grade
 ```{r}
+#| code-fold: true
 # Join datasets for census blocks, add the count of each grade group and divide by number of rows; keep grade and percent
 percent_holc <- holc_la_join |> 
    group_by(grade) |> 
@@ -139,12 +151,10 @@ kable(percent_holc, col.names = c("Grade", "Percent"))
 
 ```
 
-```{r}
-## Create test that the table is correct, add all the percents together and check
-```
-
 ### Figure 1: % low income
 ```{r}
+#| code-fold: true
+
 # Join if st_intersects is true, so we make sure to look at values of overlapping geometrise
  low_income_join <- holc_la_join  |> 
    group_by(grade) |>  
@@ -176,8 +186,9 @@ fig1
 
 ### Figures 2 & 3: Particulate Matter 2.5 and Low Life Expectancy
 ```{r}
-# Create boxplot
+#| code-fold: true
 
+# Create boxplot
 fig2 <- ggplot(holc_la_join, aes(x = grade,                          # original joined data frame, we want all the data for holc and ejscreen in LA 
                                  y = P_PM25)) +                                  # repeat y for stat summary
   geom_boxplot(aes(x = grade,                                                 # x variable 
@@ -232,9 +243,9 @@ fig3 <- ggplot(holc_la_join, aes(x = grade,
 fig2 / fig3
 ```
 
-Reflecting on these results, it is noted that there are many missing or NA values that were omitted from the HOLC grade data. These missing values had an average percent low income of about 27.3%. Areas that were graded an A by HOLC had a percent low income of about 15%, which differs significantly with the D graded areas with a percent low income of 39.2%. This places the missing data (making up about 43% of the total 2021 EJScreen LA data) between the highest and lowest grades possible by HOLC. Likewise, these communities are not historically redlined, however may not be necessarily put at a strong advantage either. 
+Reflecting on these results, it is noted that there are many missing or NA values that were omitted from the HOLC grade data. These missing values had an average percent low income of about 27.3%. Areas that were graded an A by HOLC had a percent low income of about 15%, which differs significantly with the D graded areas with a percent low income of 39.2%. This places the missing data (making up about 43% of the total 2021 EJScreen LA data) between the highest and lowest grades possible by HOLC. Likewise, these communities are not historically redlined, however may not be necessarily have a strong advantage either. 
 
-There is a cascading effect on increasing socioeconomic constraints and negative health effects as the grade decreases. Because of these historical redlines, disadvantaged communities have less available medical resources and closer proximity to hazardous polluting facilities, contributing to the greater levels of air pollutants and low life expectancy. 
+There is a cascading effect on increasing socioeconomic constraints and negative health effects as the grade decreases. Because of this historical redlining, disadvantaged communities have less available medical resources and closer proximity to hazardous polluting facilities, contributing to the greater levels of air pollutants and low life expectancy. 
 
 Looking at the values that were recorded by the Home Owner's Loan Corporation Grades in the 1930s, about 20% of the overall measured data was in the D range. Unsurprisingly, census tracts that were given a D grade had the highest averages of percent low income, percentile of particulate matter 2.5, and percentile of low life expectancy. Furthermore, these adverse health effects are linked to the historical redlining of marginalized residents, a form of institutionalized racism whose effect is proven in the 2021 EJScreen data. 
 
@@ -242,6 +253,32 @@ Looking at the values that were recorded by the Home Owner's Loan Corporation Gr
 ## Part 2: Legacy of redlining in biodiversity observations
 
 ```{r}
+#| code-fold: true
+
+if(st_crs(holc) == st_crs(birds)) {
+  print("It's a match! Coordinate reference systems of datsets match. ")
+} else{
+  warning("Coordinate reference systems do not match. Please transform your data.") 
+}
+
+bird_holc_join <- st_join(holc, birds, st_intersects) |> 
+  filter(grade != 'NA') |> 
+  group_by(grade) |> 
+  summarise(bird_count= n()) |> 
+  mutate(percent_obs = (bird_count/sum(bird_count) * 100)) |> 
+  st_drop_geometry() |> 
+  ungroup()
+
+# Plot data!
+ggplot(bird_holc_join, aes(x = grade, y = percent_obs)) +
+  geom_col(fill = c('green4',
+                        'gold',
+                        'darkorange',
+                        'red4')) +
+  labs(title = 'Percent of Bird Observations in LA HOLC Grade',
+       x = 'HOLC Grade',
+       y = 'Percent of Observations') +
+  theme_classic()
 
 ```
 
