@@ -230,7 +230,7 @@ fig3 <- ggplot(holc_la_join, aes(x = grade,
 fig2 / fig3
 ```
 
-Reflecting on these results, it is noted that there are many missing or NA values that were omitted from the HOLC grade data. These missing values had an average percent low income of about 27.3%. Areas that were graded an A by HOLC had a percent low income of about 15%, which differs significantly with the D graded areas with a percent low income of 39.2%. This places the missing data (making up about 43% of the total 2021 EJScreen LA data) between the highest and lowest grades possible by HOLC. Likewise, these communities are not historically redlined, however may not be necessarily have a strong advantage either. 
+Reflecting on these results, it is noted that there are many missing or NA values that were omitted from the HOLC grade data. These missing values had an average percent low income of about 27.3%. Areas that were graded an A by HOLC had a percent low income of about 15%, which differs significantly with the D graded areas with a percent low income of 39.2%. This places the missing data (making up about 43% of the total 2021 EJScreen LA data) between the highest and lowest grades possible by HOLC. Likewise, these communities are not historically redlined, however may not be necessarily at a strong advantage either. 
 
 There is a cascading effect on increasing socioeconomic constraints and negative health effects as the grade decreases. Because of this historical redlining, disadvantaged communities have less available medical resources and closer proximity to hazardous polluting facilities, contributing to the greater levels of air pollutants and low life expectancy. 
 
