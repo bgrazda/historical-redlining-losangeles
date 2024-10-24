@@ -4,15 +4,15 @@ subtitle: "Exploring patterns of environmental justice"
 author: "Brooke Grazda"
 date: last-modified
 execute: 
+  warning: false
+  message: false
   eval: true
 format:
   html:
     toc: true
 editor_options: 
   chunk_output_type: console
-code-fold: true
-warning: false
-message: false
+
 ---
 
 ## Part 1: Legacy of redlining in current environmental (in)justice
@@ -20,6 +20,7 @@ message: false
 ```{r}
 #| code-fold: true
 
+# Read in packages
 library(tidyverse)
 library(janitor) 
 library(here)
@@ -30,8 +31,10 @@ library(patchwork)
 library(testthat)
 ```
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 #| code-fold: true
+#| output: false
+#| quiet: true
 
 # Read in HOLC data, make shape valid
 holc <- sf::st_read(here::here('data', 'mapping-inequality/mapping-inequality-los-angeles.json')) |> 
@@ -54,11 +57,7 @@ ejscreen_LA <- ejscreen |>
 # Filter for surrounding counties for base map context
 orange_county <- ejscreen |> filter(CNTY_NAME == 'Orange County') |> 
   st_make_valid()
-ventura <- ejscreen |> filter(CNTY_NAME == 'Ventura County') |> 
-  st_make_valid()
-kern <- ejscreen |> filter(CNTY_NAME == 'Kern County') |> 
-  st_make_valid()
-riverside <- ejscreen |> filter(CNTY_NAME == 'Riverside County') |> 
+san_bern <- ejscreen |> filter(CNTY_NAME == 'San Bernardino County') |> 
   st_make_valid()
 
 # Read in dataframe
@@ -80,8 +79,8 @@ birds <- sf::st_read(here::here('data', 'gbif-birds-LA', 'gbif-birds-LA.shp')) |
 if(st_crs(holc) == st_crs(ejscreen_LA) & st_crs(holc) == st_crs(ejscreen)) {
   print("It's a match! Coordinate reference systems of datsets match. ")
 } else{
-  stop("Coordinate reference systems do not match. Please transform your data.") 
-}
+  warning("Coordinate reference systems do not match. Please transform your data.") 
+} # STOP here if it does not match, go back and use st_transform()
 
 ```
 
@@ -91,40 +90,31 @@ if(st_crs(holc) == st_crs(ejscreen_LA) & st_crs(holc) == st_crs(ejscreen)) {
 tmap_mode('plot')
 
 # Layer shapes using bounding box visualizing LA County and its surrounding counties
-tmap_options(check.and.fix = TRUE)            # 
+tmap_options(check.and.fix = TRUE)            # Fixes polygon options for map
 
-tm_shape(ejscreen_LA,
+tm_shape(ejscreen_LA,                             # Using LA data, zoom in on areas graded by HOLC
          bbox = holc) +
-  tm_polygons(col = 'moccasin') +
-   tm_shape(holc) +
+  tm_polygons(col = 'moccasin') +                 # Choose map color for land area in LA
+   tm_shape(holc) +                               # Now we want to fill in the HOLC census data
    tm_polygons(col = 'grade',
               palette = c('A' = 'green4',
                           'B' = 'gold',
                           'C' = 'darkorange',
                           'D' = 'red4'),
                title = "Grades") +
-  tm_shape(kern) +
+  tm_shape(san_bern) +
   tm_polygons(col = 'moccasin') +
   tm_shape(orange_county) +
-  tm_polygons(col = 'moccasin') +
-  tm_shape(ventura) +
   tm_polygons(col = 'moccasin') +
   tm_layout(frame = TRUE,
             main.title = "Historical Redlining in Los Angeles County",
             main.title.position = "center",
             bg.color = "lightblue",
-            legend.position = c("left", "bottom"),
-            # legend.outside = TRUE,
-            # legend.outside.position = "right",
-            # legend.outside.size = .4,
-            fontfamily = "serif",
-            # outer.bg.color = 'grey83',
-            # legend.frame = TRUE,
-            # legend.frame.lwd = 1.2,
-            # legend.bg.color = 'papayawhip',
-             legend.title.size = 1) +
-  tm_scale_bar(position = c(.6, .9)) +
-  tm_compass(type = "8star",
+            legend.position = c("left", "bottom"),                        # 
+            fontfamily = "serif",                                           # Select font
+             legend.title.size = 1) +                             
+  tm_scale_bar(position = c(.6, .9)) +         # position values tinkered to be in the top right corner
+  tm_compass(type = "8star",                                           # More detailed compass
              position = c(.725, .8),               # Position 8 star compass below the scale bar
              size = 2.4) 
   
@@ -137,21 +127,25 @@ tm_shape(ejscreen_LA,
 holc_la_join <- st_join(ejscreen_LA, holc, join = st_intersects)
 ```
  
-### Table summarizing the percent of current census block groups within each HOLC grade
+### Percent of current census block groups within each HOLC grade
 ```{r}
 #| code-fold: true
 # Join datasets for census blocks, add the count of each grade group and divide by number of rows; keep grade and percent
 percent_holc <- holc_la_join |> 
-   group_by(grade) |> 
-   summarise(percent = (n()/nrow(ejscreen_LA) * 100)) |> 
+   group_by(holc_la_join$grade) |> 
+   summarise(count_block = n()) |> 
+  mutate(percent = (count_block/sum(count_block) * 100) ) |> 
+  ungroup() |> 
   select(grade, percent) |> 
    st_drop_geometry() 
 
-kable(percent_holc, col.names = c("Grade", "Percent"))
+  
+test_that("Test that the percentage adds to 100", expect_true(sum(percent_holc$percent) == 100))
+
+kable(percent_holc, col.names = c("Grade", "Percent")) 
 
 ```
 
-### Figure 1: % low income
 ```{r}
 #| code-fold: true
 
@@ -161,9 +155,8 @@ kable(percent_holc, col.names = c("Grade", "Percent"))
    summarise(mean_low_income = (mean(LOWINCPCT) * 100)) |>             
   ungroup()
 
-# Create a Test that the mean is correct per group
-
-
+# Create a Test that the mean is correct with the holc_la_join low income data
+# IF false, check for missing values
 
 # Plot data
 fig1 <- ggplot(low_income_join) +
@@ -184,7 +177,6 @@ fig1 <- ggplot(low_income_join) +
 fig1
 ```
 
-### Figures 2 & 3: Particulate Matter 2.5 and Low Life Expectancy
 ```{r}
 #| code-fold: true
 
@@ -255,7 +247,7 @@ Looking at the values that were recorded by the Home Owner's Loan Corporation Gr
 ```{r}
 #| code-fold: true
 
-if(st_crs(holc) == st_crs(birds)) {
+if(expect_true(st_crs(birds) == st_crs(holc))) {
   print("It's a match! Coordinate reference systems of datsets match. ")
 } else{
   warning("Coordinate reference systems do not match. Please transform your data.") 
@@ -269,17 +261,29 @@ bird_holc_join <- st_join(holc, birds, st_intersects) |>
   st_drop_geometry() |> 
   ungroup()
 
+test_that("Test that the percentage of bird observations add to 100.", expect_true(sum(bird_holc_join$percent_obs) == 100)) 
+
 # Plot data!
 ggplot(bird_holc_join, aes(x = grade, y = percent_obs)) +
   geom_col(fill = c('green4',
                         'gold',
                         'darkorange',
                         'red4')) +
-  labs(title = 'Percent of Bird Observations in LA HOLC Grade',
-       x = 'HOLC Grade',
-       y = 'Percent of Observations') +
-  theme_classic()
+  labs(title = 'Percent of Bird Observations in LA HOLC Grade in 2021',      # Title 
+       x = 'HOLC Grade',                                    # holc grade on x
+       y = 'Percent of Observations') +                         
+  theme_classic()                                           # Blank background for sleekness
 
 ```
 
-Insert Paragraph 
+Looking at the bird data, the bar plot shows that the highest percentage of bird observations is found  in the C graded areas. The second highest percentage of bird observations is found in the D graded areas, which does not match with the findings in Ellis-Soto et al. 2023. The highest number of observations were found in both areas of HOLC grades C and D. Ellis-Soto and co authors found that these redlined areas were the most undersampled, and while this may still be true, the biodiversity data based on bird observations is not true. However, the concerns for undersampled areas influencing conservation decisions remain important to the conversation of adverse impacts as a result of historical redlining. Environmental injustices as such create additional barriers to biodiversity access, and it should be considered that there may bias as to how this biodiversity data was collected in redlined areas. For example, the Biden administration has authorized federal and state governments to focus on historically neglected areas to increase conservation efforts, potentially could have influenced the greater amount of bird observations in 2022 within these redlined areas. 
+
+**Citations:**
+
+Ellis-Soto, D., Chapman, M., & Locke, D. H. (2023). Historical redlining is associated with increasing geographical disparities in bird biodiversity sampling in the United States. Nature Human Behaviour.
+
+Federal Loan Agency. Federal Home Loan Bank Board. Home Owners' Loan Corporation. (07/01/1939 - 02/24/1942).
+
+U.S. Environmental Protection Agency (EPA), 2023. EJScreen Technical Documentation.
+
+Global Biodiversity Information Facility (GBIF). Biodiversity Data. 
