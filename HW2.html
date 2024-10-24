@@ -144,48 +144,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conditional statement to check for coordinate reference systems</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="fu">st_crs</span>(holc) <span class="sc">==</span> <span class="fu">st_crs</span>(ejscreen_LA) <span class="sc">&amp;</span> <span class="fu">st_crs</span>(holc) <span class="sc">==</span> <span class="fu">st_crs</span>(ejscreen)) {</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">"It's a match! Coordinate reference systems of datsets match. "</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">"It's a match! Coordinate reference systems of datasets match. "</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span>{</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">warning</span>(<span class="st">"Coordinate reference systems do not match. Please transform your data."</span>) </span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>} <span class="co"># STOP here if it does not match, go back and use st_transform()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "It's a match! Coordinate reference systems of datsets match. "</code></pre>
+<pre><code>[1] "It's a match! Coordinate reference systems of datasets match. "</code></pre>
 </div>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">'plot'</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer shapes using bounding box visualizing LA County and its surrounding counties</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>)            <span class="co"># Fixes polygon options for map</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(ejscreen_LA,                             <span class="co"># Using LA data, zoom in on areas graded by HOLC</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">bbox =</span> holc) <span class="sc">+</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">'moccasin'</span>) <span class="sc">+</span>                 <span class="co"># Choose map color for land area in LA</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>   <span class="fu">tm_shape</span>(holc) <span class="sc">+</span>                               <span class="co"># Now we want to fill in the HOLC census data</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>   <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">'grade'</span>,</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>              <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">'A'</span> <span class="ot">=</span> <span class="st">'green4'</span>,</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                          <span class="st">'B'</span> <span class="ot">=</span> <span class="st">'gold'</span>,</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                          <span class="st">'C'</span> <span class="ot">=</span> <span class="st">'darkorange'</span>,</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                          <span class="st">'D'</span> <span class="ot">=</span> <span class="st">'red4'</span>),</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>               <span class="at">title =</span> <span class="st">"Grades"</span>) <span class="sc">+</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(san_bern) <span class="sc">+</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">'moccasin'</span>) <span class="sc">+</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(orange_county) <span class="sc">+</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">'moccasin'</span>) <span class="sc">+</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">frame =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title =</span> <span class="st">"Historical Redlining in Los Angeles County"</span>,</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>            <span class="at">bg.color =</span> <span class="st">"lightblue"</span>,</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.position =</span> <span class="fu">c</span>(<span class="st">"left"</span>, <span class="st">"bottom"</span>),                        <span class="co"># </span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>            <span class="at">fontfamily =</span> <span class="st">"serif"</span>,                                           <span class="co"># Select font</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>             <span class="at">legend.title.size =</span> <span class="dv">1</span>) <span class="sc">+</span>                             </span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>(<span class="at">position =</span> <span class="fu">c</span>(.<span class="dv">6</span>, .<span class="dv">9</span>)) <span class="sc">+</span>         <span class="co"># position values tinkered to be in the top right corner</span></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_compass</span>(<span class="at">type =</span> <span class="st">"8star"</span>,                                           <span class="co"># More detailed compass</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>             <span class="at">position =</span> <span class="fu">c</span>(.<span class="dv">725</span>, .<span class="dv">8</span>),               <span class="co"># Position 8 star compass below the scale bar</span></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>             <span class="at">size =</span> <span class="fl">2.4</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Layer shapes using bounding box visualizing LA County and its surrounding counties</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>)            <span class="co"># Fixes polygon options for map</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(ejscreen_LA,                             <span class="co"># Using LA data, zoom in on areas graded by HOLC</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">bbox =</span> holc) <span class="sc">+</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">'moccasin'</span>) <span class="sc">+</span>                 <span class="co"># Choose map color for land area in LA</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">tm_shape</span>(holc) <span class="sc">+</span>                               <span class="co"># Now we want to fill in the HOLC census data</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>   <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">'grade'</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">'A'</span> <span class="ot">=</span> <span class="st">'green4'</span>,                                    <span class="co"># Color each grade in order</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                          <span class="st">'B'</span> <span class="ot">=</span> <span class="st">'gold'</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                          <span class="st">'C'</span> <span class="ot">=</span> <span class="st">'darkorange'</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                          <span class="st">'D'</span> <span class="ot">=</span> <span class="st">'red4'</span>),</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>               <span class="at">title =</span> <span class="st">"Grades"</span>) <span class="sc">+</span>                                    <span class="co"># Legend Title</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(san_bern) <span class="sc">+</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">'moccasin'</span>) <span class="sc">+</span>                                    <span class="co"># San Bernardino to provide map context</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(orange_county) <span class="sc">+</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">'moccasin'</span>) <span class="sc">+</span>                                    <span class="co"># Surrounding counties and filling color</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">frame =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title =</span> <span class="st">"Historical Redlining in Los Angeles County"</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,                               <span class="co">#center the title</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">bg.color =</span> <span class="st">"lightblue"</span>,                                    <span class="co"># ocean color as background</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.position =</span> <span class="fu">c</span>(<span class="st">"left"</span>, <span class="st">"bottom"</span>),                        <span class="co"># want legend in bottom left</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>            <span class="at">fontfamily =</span> <span class="st">"serif"</span>,                                           <span class="co"># Select font</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>             <span class="at">legend.title.size =</span> <span class="dv">1</span>) <span class="sc">+</span>                             </span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>(<span class="at">position =</span> <span class="fu">c</span>(.<span class="dv">6</span>, .<span class="dv">9</span>)) <span class="sc">+</span>         <span class="co"># position values tinkered to be in the top right corner</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_compass</span>(<span class="at">type =</span> <span class="st">"8star"</span>,                                           <span class="co"># More detailed compass</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>             <span class="at">position =</span> <span class="fu">c</span>(.<span class="dv">725</span>, .<span class="dv">8</span>),               <span class="co"># Position 8 star compass below the scale bar</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">size =</span> <span class="fl">2.4</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -195,6 +193,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<section id="percent-of-current-census-block-groups-within-each-holc-grade" class="level3">
+<h3 class="anchored" data-anchor-id="percent-of-current-census-block-groups-within-each-holc-grade">Percent of current census block groups within each HOLC grade</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -202,28 +202,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>holc_la_join <span class="ot">&lt;-</span> <span class="fu">st_join</span>(ejscreen_LA, holc, <span class="at">join =</span> st_intersects)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="percent-of-current-census-block-groups-within-each-holc-grade" class="level3">
-<h3 class="anchored" data-anchor-id="percent-of-current-census-block-groups-within-each-holc-grade">Percent of current census block groups within each HOLC grade</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Join datasets for census blocks, add the count of each grade group and divide by number of rows; keep grade and percent</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>percent_holc <span class="ot">&lt;-</span> holc_la_join <span class="sc">|&gt;</span> </span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">group_by</span>(grade) <span class="sc">|&gt;</span> </span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>   <span class="fu">summarise</span>(<span class="at">count_block =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (count_block<span class="sc">/</span><span class="fu">sum</span>(count_block) <span class="sc">*</span> <span class="dv">100</span>) ) <span class="sc">|&gt;</span> </span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">st_drop_geometry</span>() </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>percent_holc <span class="ot">&lt;-</span> holc_la_join <span class="sc">|&gt;</span>              <span class="co"># Use joined data frame as base                       </span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">group_by</span>(grade) <span class="sc">|&gt;</span>                         <span class="co"># Group data by grade as first step to calculating percent</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>   <span class="fu">summarise</span>(<span class="at">count_block =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span>                              <span class="co"># Count each block that was grouped by grade</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (count_block<span class="sc">/</span><span class="fu">sum</span>(count_block) <span class="sc">*</span> <span class="dv">100</span>) ) <span class="sc">|&gt;</span>    <span class="co"># calculate percentage by mutating a new column using our summarized count column</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span>                                     <span class="co"># Avoid errors with ungroup function</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">st_drop_geometry</span>()                                     <span class="co"># drop geom for our table</span></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">test_that</span>(<span class="st">"Test that the percentage adds to 100"</span>, <span class="fu">expect_true</span>(<span class="fu">sum</span>(percent_holc<span class="sc">$</span>percent) <span class="sc">==</span> <span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">test_that</span>(<span class="st">"Test that the percentage adds to 100"</span>, <span class="fu">expect_true</span>(<span class="fu">sum</span>(percent_holc<span class="sc">$</span>percent) <span class="sc">==</span> <span class="dv">100</span>)) <span class="co"># Making sure that percents are correct before putting into table</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Test passed 🥇</code></pre>
+<pre><code>Test passed 🌈</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(percent_holc, <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Grade"</span>, <span class="st">"Count"</span>, <span class="st">"Percent"</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(percent_holc, <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Grade"</span>, <span class="st">"Count"</span>, <span class="st">"Percent"</span>)) <span class="co"># Create visual table for data frame we just created</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -388,18 +386,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>bird_holc_join <span class="ot">&lt;-</span> <span class="fu">st_join</span>(holc, birds, st_intersects) <span class="sc">|&gt;</span> </span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(grade <span class="sc">!=</span> <span class="st">'NA'</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(grade) <span class="sc">|&gt;</span> </span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">bird_count=</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent_obs =</span> (bird_count<span class="sc">/</span><span class="fu">sum</span>(bird_count) <span class="sc">*</span> <span class="dv">100</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="fu">test_that</span>(<span class="st">"Test that the percentage of bird observations add to 100."</span>, <span class="fu">expect_true</span>(<span class="fu">sum</span>(bird_holc_join<span class="sc">$</span>percent_obs) <span class="sc">==</span> <span class="dv">100</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Join DF</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>bird_holc_join <span class="ot">&lt;-</span> <span class="fu">st_join</span>(holc, birds, st_intersects) <span class="sc">|&gt;</span> </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(grade <span class="sc">!=</span> <span class="st">'NA'</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(grade) <span class="sc">|&gt;</span> </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">bird_count=</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent_obs =</span> (bird_count<span class="sc">/</span><span class="fu">sum</span>(bird_count) <span class="sc">*</span> <span class="dv">100</span>)) <span class="sc">|&gt;</span>                 <span class="co"># Mutate new colummn </span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span>                                     </span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()                                     <span class="co"># Avoid further errors if we wanted to perform more functions</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Test function to make sure that the bird observation percentages are TRUE</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">test_that</span>(<span class="st">"Test that the percentage of bird observations add to 100."</span>, <span class="fu">expect_true</span>(<span class="fu">sum</span>(bird_holc_join<span class="sc">$</span>percent_obs) <span class="sc">==</span> <span class="dv">100</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Test passed 😀</code></pre>
+<pre><code>Test passed 😸</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -409,7 +409,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'gold'</span>,</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'darkorange'</span>,</span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'red4'</span>)) <span class="sc">+</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">'Percent of Bird Observations in LA HOLC Grade in 2021'</span>,      <span class="co"># Title </span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">'Percent of Bird Observations in LA HOLC Grade in 2022'</span>,      <span class="co"># Title </span></span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">'HOLC Grade'</span>,                                    <span class="co"># holc grade on x</span></span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">'Percent of Observations'</span>) <span class="sc">+</span>                         </span>
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()                                           <span class="co"># Blank background for sleekness</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -422,7 +422,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Looking at the bird data, the bar plot shows that the highest percentage of bird observations is found in the C graded areas. The second highest percentage of bird observations is found in the D graded areas, which does not match with the findings in Ellis-Soto et al.&nbsp;2023. The highest number of observations were found in both areas of HOLC grades C and D. Ellis-Soto and co authors found that these redlined areas were the most undersampled, and while this may still be true, the biodiversity data based on bird observations is not true. However, the concerns for undersampled areas influencing conservation decisions remain important to the conversation of adverse impacts as a result of historical redlining. Environmental injustices as such create additional barriers to biodiversity access, and it should be considered that there may bias as to how this biodiversity data was collected in redlined areas. For example, the Biden administration has authorized federal and state governments to focus on historically neglected areas to increase conservation efforts, potentially could have influenced the greater amount of bird observations in 2022 within these redlined areas.</p>
+<p>Looking at the bird data, the bar plot shows that the highest percentage of bird observations is found in the C graded areas. The second highest percentage of bird observations is found in the D graded areas, which does not match with the findings in Ellis-Soto et al.&nbsp;2023. The highest number of observations were found in both areas of HOLC grades C and D. Ellis-Soto and co authors found that these redlined areas were the most undersampled, and while this may still be true, the biodiversity data based on bird observations is not true. However, the concerns for undersampled areas influencing conservation decisions remain important to the conversation of adverse impacts as a result of historical redlining. Environmental injustices as such create additional barriers to biodiversity access, and it should be considered that there may bias as to how this biodiversity data was collected in redlined areas. For example, the Biden Administration has authorized federal and state governments to focus on historically neglected areas to increase conservation efforts, potentially could have influenced the greater amount of bird observations in 2022 within these redlined areas.</p>
 <p><strong>Citations:</strong></p>
 <p>Ellis-Soto, D., Chapman, M., &amp; Locke, D. H. (2023). Historical redlining is associated with increasing geographical disparities in bird biodiversity sampling in the United States. Nature Human Behaviour.</p>
 <p>Federal Loan Agency. Federal Home Loan Bank Board. Home Owners’ Loan Corporation. (07/01/1939 - 02/24/1942).</p>

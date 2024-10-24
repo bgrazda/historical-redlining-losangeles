@@ -77,7 +77,7 @@ birds <- sf::st_read(here::here('data', 'gbif-birds-LA', 'gbif-birds-LA.shp')) |
 
 # Conditional statement to check for coordinate reference systems
 if(st_crs(holc) == st_crs(ejscreen_LA) & st_crs(holc) == st_crs(ejscreen)) {
-  print("It's a match! Coordinate reference systems of datsets match. ")
+  print("It's a match! Coordinate reference systems of datasets match. ")
 } else{
   warning("Coordinate reference systems do not match. Please transform your data.") 
 } # STOP here if it does not match, go back and use st_transform()
@@ -87,7 +87,6 @@ if(st_crs(holc) == st_crs(ejscreen_LA) & st_crs(holc) == st_crs(ejscreen)) {
 ```{r}
 #| code-fold: true
 
-tmap_mode('plot')
 
 # Layer shapes using bounding box visualizing LA County and its surrounding counties
 tmap_options(check.and.fix = TRUE)            # Fixes polygon options for map
@@ -97,20 +96,20 @@ tm_shape(ejscreen_LA,                             # Using LA data, zoom in on ar
   tm_polygons(col = 'moccasin') +                 # Choose map color for land area in LA
    tm_shape(holc) +                               # Now we want to fill in the HOLC census data
    tm_polygons(col = 'grade',
-              palette = c('A' = 'green4',
+              palette = c('A' = 'green4',                                    # Color each grade in order
                           'B' = 'gold',
                           'C' = 'darkorange',
                           'D' = 'red4'),
-               title = "Grades") +
+               title = "Grades") +                                    # Legend Title
   tm_shape(san_bern) +
-  tm_polygons(col = 'moccasin') +
+  tm_polygons(col = 'moccasin') +                                    # San Bernardino to provide map context
   tm_shape(orange_county) +
-  tm_polygons(col = 'moccasin') +
+  tm_polygons(col = 'moccasin') +                                    # Surrounding counties and filling color
   tm_layout(frame = TRUE,
             main.title = "Historical Redlining in Los Angeles County",
-            main.title.position = "center",
-            bg.color = "lightblue",
-            legend.position = c("left", "bottom"),                        # 
+            main.title.position = "center",                               #center the title
+            bg.color = "lightblue",                                    # ocean color as background
+            legend.position = c("left", "bottom"),                        # want legend in bottom left
             fontfamily = "serif",                                           # Select font
              legend.title.size = 1) +                             
   tm_scale_bar(position = c(.6, .9)) +         # position values tinkered to be in the top right corner
@@ -120,28 +119,28 @@ tm_shape(ejscreen_LA,                             # Using LA data, zoom in on ar
   
 ```
 
+### Percent of current census block groups within each HOLC grade
 ```{r}
 #| code-fold: true
 
 # Create a joined data frame that will be modified to create table and figures
 holc_la_join <- st_join(ejscreen_LA, holc, join = st_intersects)
 ```
- 
-### Percent of current census block groups within each HOLC grade
+
 ```{r}
 #| code-fold: true
 # Join datasets for census blocks, add the count of each grade group and divide by number of rows; keep grade and percent
-percent_holc <- holc_la_join |> 
-   group_by(grade) |> 
-   summarise(count_block = n()) |> 
-  mutate(percent = (count_block/sum(count_block) * 100) ) |> 
-  ungroup() |> 
-   st_drop_geometry() 
+percent_holc <- holc_la_join |>              # Use joined data frame as base                       
+   group_by(grade) |>                         # Group data by grade as first step to calculating percent
+   summarise(count_block = n()) |>                              # Count each block that was grouped by grade
+  mutate(percent = (count_block/sum(count_block) * 100) ) |>    # calculate percentage by mutating a new column using our summarized count column
+  ungroup() |>                                     # Avoid errors with ungroup function
+   st_drop_geometry()                                     # drop geom for our table
 
   
-test_that("Test that the percentage adds to 100", expect_true(sum(percent_holc$percent) == 100))
+test_that("Test that the percentage adds to 100", expect_true(sum(percent_holc$percent) == 100)) # Making sure that percents are correct before putting into table
 
-kable(percent_holc, col.names = c("Grade", "Count", "Percent")) 
+kable(percent_holc, col.names = c("Grade", "Count", "Percent")) # Create visual table for data frame we just created
 
 ```
 
@@ -153,9 +152,6 @@ kable(percent_holc, col.names = c("Grade", "Count", "Percent"))
    group_by(grade) |>  
    summarise(mean_low_income = (mean(LOWINCPCT) * 100)) |>             
   ungroup()
-
-# Create a Test that the mean is correct with the holc_la_join low income data
-# IF false, check for missing values
 
 # Plot data
 fig1 <- ggplot(low_income_join) +
@@ -252,14 +248,16 @@ if(expect_true(st_crs(birds) == st_crs(holc))) {
   warning("Coordinate reference systems do not match. Please transform your data.") 
 }
 
+# Join DF
 bird_holc_join <- st_join(holc, birds, st_intersects) |> 
   filter(grade != 'NA') |> 
   group_by(grade) |> 
   summarise(bird_count= n()) |> 
-  mutate(percent_obs = (bird_count/sum(bird_count) * 100)) |> 
-  st_drop_geometry() |> 
-  ungroup()
+  mutate(percent_obs = (bird_count/sum(bird_count) * 100)) |>                 # Mutate new colummn 
+  st_drop_geometry() |>                                     
+  ungroup()                                     # Avoid further errors if we wanted to perform more functions
 
+# Test function to make sure that the bird observation percentages are TRUE
 test_that("Test that the percentage of bird observations add to 100.", expect_true(sum(bird_holc_join$percent_obs) == 100)) 
 
 # Plot data!
@@ -268,14 +266,14 @@ ggplot(bird_holc_join, aes(x = grade, y = percent_obs)) +
                         'gold',
                         'darkorange',
                         'red4')) +
-  labs(title = 'Percent of Bird Observations in LA HOLC Grade in 2021',      # Title 
+  labs(title = 'Percent of Bird Observations in LA HOLC Grade in 2022',      # Title 
        x = 'HOLC Grade',                                    # holc grade on x
        y = 'Percent of Observations') +                         
   theme_classic()                                           # Blank background for sleekness
 
 ```
 
-Looking at the bird data, the bar plot shows that the highest percentage of bird observations is found  in the C graded areas. The second highest percentage of bird observations is found in the D graded areas, which does not match with the findings in Ellis-Soto et al. 2023. The highest number of observations were found in both areas of HOLC grades C and D. Ellis-Soto and co authors found that these redlined areas were the most undersampled, and while this may still be true, the biodiversity data based on bird observations is not true. However, the concerns for undersampled areas influencing conservation decisions remain important to the conversation of adverse impacts as a result of historical redlining. Environmental injustices as such create additional barriers to biodiversity access, and it should be considered that there may bias as to how this biodiversity data was collected in redlined areas. For example, the Biden administration has authorized federal and state governments to focus on historically neglected areas to increase conservation efforts, potentially could have influenced the greater amount of bird observations in 2022 within these redlined areas. 
+Looking at the bird data, the bar plot shows that the highest percentage of bird observations is found  in the C graded areas. The second highest percentage of bird observations is found in the D graded areas, which does not match with the findings in Ellis-Soto et al. 2023. The highest number of observations were found in both areas of HOLC grades C and D. Ellis-Soto and co authors found that these redlined areas were the most undersampled, and while this may still be true, the biodiversity data based on bird observations is not true. However, the concerns for undersampled areas influencing conservation decisions remain important to the conversation of adverse impacts as a result of historical redlining. Environmental injustices as such create additional barriers to biodiversity access, and it should be considered that there may bias as to how this biodiversity data was collected in redlined areas. For example, the Biden Administration has authorized federal and state governments to focus on historically neglected areas to increase conservation efforts, potentially could have influenced the greater amount of bird observations in 2022 within these redlined areas. 
 
 **Citations:**
 
