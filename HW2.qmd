@@ -132,17 +132,16 @@ holc_la_join <- st_join(ejscreen_LA, holc, join = st_intersects)
 #| code-fold: true
 # Join datasets for census blocks, add the count of each grade group and divide by number of rows; keep grade and percent
 percent_holc <- holc_la_join |> 
-   group_by(holc_la_join$grade) |> 
+   group_by(grade) |> 
    summarise(count_block = n()) |> 
   mutate(percent = (count_block/sum(count_block) * 100) ) |> 
   ungroup() |> 
-  select(grade, percent) |> 
    st_drop_geometry() 
 
   
 test_that("Test that the percentage adds to 100", expect_true(sum(percent_holc$percent) == 100))
 
-kable(percent_holc, col.names = c("Grade", "Percent")) 
+kable(percent_holc, col.names = c("Grade", "Count", "Percent")) 
 
 ```
 
