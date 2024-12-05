@@ -12,7 +12,6 @@ format:
     toc: true
 editor_options: 
   chunk_output_type: console
-
 ---
 
 ## Part 1: Legacy of redlining in current environmental (in)justice
@@ -266,7 +265,7 @@ ggplot(bird_holc_join, aes(x = grade, y = percent_obs)) +
                         'gold',
                         'darkorange',
                         'red4')) +
-  labs(title = 'Percent of Bird Observations in LA HOLC Grade in 2022',      # Title 
+  labs(title = 'Percent of Bird Observations by LA HOLC Grades in 2022',      # Title 
        x = 'HOLC Grade',                                    # holc grade on x
        y = 'Percent of Observations') +                         
   theme_classic()                                           # Blank background for sleekness
